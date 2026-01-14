@@ -1,0 +1,10 @@
+# Claude Code
+.claude/sessions/
+.claude/cache/
+.claude/.tmp/
+
+# bv (beads viewer) local config and caches
+.bv/
+
+# Local env secrets
+.env.local
