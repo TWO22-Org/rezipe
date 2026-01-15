@@ -9,6 +9,26 @@ This file defines the primary workflow rules for this repo. Always follow these 
 - If rules conflict, prefer the most specific rule file in `.claude/rules/`.
 - `.claude/prds/global-prd.md` is the product north star; all work must align to its vision/why/goals.
 
+## Project Overview
+ChefStream (Rezipe) is an iOS 17+ app that surfaces recipe-focused YouTube videos and renders a structured, translated recipe card beneath a compliant embedded player. Backend services use Supabase (Postgres + Edge Functions) to cache search results and extracted recipes.
+
+## Tech Stack
+- iOS: SwiftUI, Swift 5.9+, async/await, @Observable, Nuke, SwiftData, YouTube IFrame player wrapper
+- Backend: Supabase (Postgres, Edge Functions), TypeScript/Deno, Zod
+- Testing: XCTest (iOS), Deno.test (backend)
+
+## Build Commands
+- iOS: open the Xcode project and build via Xcode (or `xcodebuild` with the correct scheme/workspace)
+- Backend: use Supabase CLI for local dev and Edge Functions
+
+## Test Commands
+- iOS: run via Xcode or `xcodebuild` with the correct scheme/workspace
+- Backend: `cd src/backend && deno test`
+
+## Architecture Overview
+- iOS client: SwiftUI MVVM with async state; Home/Search/Detail flows; YouTube player at top with recipe card below
+- Backend: Edge Functions for `/search` and `/recipe`, Postgres caching, LLM extraction pipeline with strict JSON schema
+
 ## Security Gatekeeper (Absolute Rules)
 
 ### NEVER EVER DO
@@ -27,18 +47,6 @@ When creating ANY new project in this repo, ALWAYS do the following:
 - `.dockerignore` (must include: `.env`, `.git/`, `node_modules/`)
 - `README.md` (overview; reference env vars, do not hardcode)
 
-### Required Directory Structure
-```
-project-root/
-├── src/
-├── tests/
-├── docs/
-├── .claude/
-│   ├── commands/
-│   └── settings.json
-└── scripts/
-```
-
 ### Required .gitignore Entries
 Environment:
 `.env`, `.env.*`, `.env.local`
@@ -55,18 +63,6 @@ Claude local files:
 Generated docs:
 `docs/.generated/`
 
-### Node.js Projects - Required Error Handling
-Add to the entry point (`index.ts`, `server.ts`, or `app.ts`):
-```javascript
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1);
-});
-
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-  process.exit(1);
-});
 ```
 
 ### Required CLAUDE.md Sections
