@@ -26,20 +26,33 @@ ChefStream is an iOS app that:
 
 1. **Read the agent instructions:**
    ```bash
-   cat .agent/AGENTS.md
-   cat AGENTS.md  # Beads quick reference
+   cat AGENTS.md
    ```
 
-2. **Check ready tasks:**
+2. **Install beads (if needed):**
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
+   # or: brew install steveyegge/beads/bd
+   # or: npm install -g @beads/bd
+   # or: go install github.com/steveyegge/beads/cmd/bd@latest
+   ```
+
+3. **Initialize beads (once per repo):**
+   ```bash
+   bd init
+   ```
+
+4. **Check ready tasks:**
    ```bash
    bd ready
    ```
 
-3. **Before starting work:**
-   - Read relevant PRD: `docs/prd/`
+5. **Before starting work:**
+   - Read relevant PRD: `.claude/prds/` (CCPM source of truth)
    - Check conventions: `docs/context/conventions.md`
    - Review tech stack: `docs/context/tech-stack.md`
-   - Check past mistakes: `.agent/reflection-log.md`
+   - Check past mistakes: `.claude/learnings/reflection-log.md`
+   - Check recent learnings: `.claude/learnings/`
 
 ### For Humans
 
@@ -51,11 +64,25 @@ ChefStream is an iOS app that:
 
 2. **Install dependencies:**
    - iOS: Xcode 15+
-   - Backend: Node.js 18+, Deno (via Supabase)
+   - Backend: Deno (via Supabase), Supabase CLI
 
-3. **Initialize beads:**
+3. **Install beads (if needed):**
    ```bash
-   bd onboard
+   curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
+   # or: brew install steveyegge/beads/bd
+   # or: npm install -g @beads/bd
+   # or: go install github.com/steveyegge/beads/cmd/bd@latest
+   ```
+
+4. **Initialize beads:**
+   ```bash
+   bd init
+   ```
+
+5. **Initialize CCPM (once per repo):**
+   ```bash
+   /pm:init
+   /context:create
    ```
 
 ---
@@ -63,18 +90,26 @@ ChefStream is an iOS app that:
 ## Documentation
 
 ### Core Documents
-- **[Global PRD](docs/prd/global-prd.md)** - Product vision and requirements
 - **[Tech Stack](docs/context/tech-stack.md)** - Technologies used
 - **[Conventions](docs/context/conventions.md)** - Coding standards
-- **[Agent Instructions](.agent/AGENTS.md)** - Workflow for AI agents
+- **[Agent Instructions](AGENTS.md)** - Workflow for AI agents
 
-### Agent System
-- **[Skills](.agent/skills/README.md)** - Reusable workflow patterns
-- **[Reflection Log](.agent/reflection-log.md)** - Learning from mistakes
-- **[Commands](.agent/commands.md)** - Common command reference
+### Observability (Sentry)
+- **Projects**: `rezipe-ios` (iOS) and `rezipe-edge` (Edge Functions)
+- **Local env**: copy `.env.example` to `.env.local` and add DSNs (do not commit)
+- **Privacy**: default to high privacy (no PII); keep `sendDefaultPii=false` in SDK configs
+- **Tag taxonomy** (for MCP queries): `surface`, `feature`, `flow`, `environment`, `release`
+- **MCP**: Sentry MCP is configured in Warp and Codex for issue queries
+
+### CCPM System
+- **[PRDs](.claude/prds/)** - Source of truth planning docs
+- **[Epics/Tasks](.claude/epics/)** - CCPM execution planning
+- **[Skills](.claude/skills/README.md)** - Reusable workflow patterns
+- **[Learnings](.claude/learnings/)** - Learning from mistakes
+- **Note**: We use root `CLAUDE.md` as the canonical rules file (not `.claude/CLAUDE.md`).
 
 ### Feature PRDs
-- See `docs/prd/features/` for feature-specific requirements
+- See `.claude/prds/` for feature-specific requirements
 
 ### Architecture Decisions
 - See `docs/adr/` for architecture decision records
@@ -85,12 +120,14 @@ ChefStream is an iOS app that:
 
 ```
 rezipe/
-├── AGENTS.md                      # Beads quick reference
+├── AGENTS.md                      # Agent workflow instructions
 ├── README.md                      # This file
+├── .claude/                       # CCPM system
+│   ├── prds/                       # PRDs (source of truth)
+│   ├── epics/                      # Epics and tasks
+│   ├── skills/                     # Skills
+│   └── learnings/                  # Learnings and reflection log
 ├── docs/
-│   ├── prd/
-│   │   ├── global-prd.md         # Product vision
-│   │   └── features/             # Feature PRDs
 │   ├── adr/                      # Architecture decisions
 │   └── context/
 │       ├── tech-stack.md         # Technologies
@@ -99,11 +136,6 @@ rezipe/
 ├── src/
 │   ├── backend/                  # Supabase Edge Functions
 │   └── frontend/                 # iOS app (TBD structure)
-├── .agent/
-│   ├── AGENTS.md                 # Comprehensive agent workflow
-│   ├── skills/                   # Reusable patterns
-│   ├── reflection-log.md         # Learning log
-│   └── commands.md               # Command reference
 ├── .beads/                       # Beads task database
 └── .github/
     ├── workflows/                # CI/CD
@@ -115,9 +147,10 @@ rezipe/
 ## Development Workflow
 
 ### 1. Planning (Human)
-1. Write PRD in `docs/prd/features/`
-2. Create GitHub issue linking to PRD
-3. Agent breaks down into beads tasks
+1. Write PRD in `.claude/prds/` (`/pm:prd-new`)
+2. Parse PRD into epic/tasks (`/pm:prd-parse` or `/pm:epic-oneshot`)
+3. Sync issues (`/pm:epic-oneshot` or `/pm:issue-sync`)
+4. Mirror CCPM tasks into beads
 
 ### 2. Implementation (Agent - TDD)
 1. Read context (PRD, ADRs, conventions, reflection log, skills)
@@ -135,7 +168,7 @@ rezipe/
 ### 4. Completion
 1. Close beads tasks: `bd close bd-[id]`
 2. Close GitHub issue
-3. Update reflection log if mistakes made
+3. Update learnings if mistakes made
 4. Update skills if patterns discovered
 
 ---
@@ -185,25 +218,37 @@ bd close bd-[id]                  # Complete task
 bd sync                           # Sync with git
 ```
 
+### CCPM (Planning & Sync)
+```bash
+/pm:prd-new <feature>             # Create PRD
+/pm:prd-parse <feature>           # Create epic/tasks
+/pm:epic-oneshot <feature>        # Decompose + sync to GitHub
+/pm:issue-start <id>              # Start issue
+/pm:issue-sync <id>               # Push updates
+```
+
 ### Development
 ```bash
 # iOS
 open ChefStream.xcodeproj        # Open in Xcode
-swift test                       # Run tests
+# Use Xcode or xcodebuild for tests
 
 # Backend
 cd src/backend
-npm run dev                      # Local development
-npm test                         # Run tests
-npm run types:generate           # Generate Supabase types
+deno test                        # Run tests
+# Use Supabase CLI for local dev (from repo root)
+# supabase start
+# supabase functions serve <function-name>
 ```
 
 ### Git
 ```bash
-git checkout -b feature/bd-[id]-description
-git commit -m "feat: description (bd-[id], #[issue])\n\nCo-Authored-By: Warp <agent@warp.dev>"
-git push origin feature/bd-[id]-description
-gh pr create
+git checkout main
+git pull --rebase
+git switch -c feat/<feature-name>
+git commit -m "feat: <summary> (bd-[id], #[issue])"
+git push -u origin feat/<feature-name>
+gh pr create --title "feat: <feature> (closes #[issue])" --body "PRD: .claude/prds/<feature>.md"
 ```
 
 ---
@@ -257,7 +302,7 @@ deno test --filter recipe        # Specific tests
 
 ## Contributing
 
-1. **Read agent instructions**: `.agent/AGENTS.md`
+1. **Read agent instructions**: `AGENTS.md`
 2. **Follow conventions**: `docs/context/conventions.md`
 3. **Use TDD**: Tests first, always
 4. **Reference beads tasks**: Include `bd-[id]` in commits

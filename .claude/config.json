@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "project": {
+    "name": "rezipe",
+    "description": "A project using bd (beads) for issue tracking"
+  },
+  "preferences": {
+    "codeStyle": "auto",
+    "testFramework": "auto"
+  }
+}
