@@ -20,6 +20,7 @@ This repo uses **CCPM** as the primary workflow system and **bd** (beads) for ex
 - **Skills**: `.claude/skills/`
 - **Learnings**: `.claude/learnings/`
 - **Learnings log**: `.claude/learnings/reflection-log.md`
+- **Product north star**: `.claude/prds/global-prd.md` (vision/why/goals must guide all work)
 
 ---
 

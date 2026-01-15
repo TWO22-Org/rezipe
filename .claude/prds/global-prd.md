@@ -25,7 +25,12 @@ YouTube is the largest repository of cooking content, but it is not a recipe too
 *   When no recipe can be extracted, the app clearly states “No recipe available” (and still allows viewing the video)
     
 
-2) Product principles (hard constraints)
+2) Problem statement
+--------------------
+
+Cooking videos on YouTube are abundant but not directly usable as recipes: steps are unstructured, key details are buried in long videos, and users lose time scrubbing and rewatching. There is no dedicated, compliant experience that converts recipe videos into a structured, language-localized recipe format while preserving YouTube’s playback rules.
+
+3) Product principles (hard constraints)
 ----------------------------------------
 
 1.  **YouTube compliance is non-negotiable**
@@ -57,8 +62,22 @@ YouTube is the largest repository of cooking content, but it is not a recipe too
     *   Login is only required when gating features (e.g., save/favorites, collections, user submissions later).
         
 
-3) MVP scope (what agents must build)
+4) MVP scope (what agents must build)
 -------------------------------------
+
+### Goals
+
+- Deliver a recipe-first YouTube experience that surfaces only cooking/recipe content.
+- Provide instant, usable recipe cards under the player with English translation by default.
+- Minimize friction: guest-first browsing with fast caching and reliable extraction.
+
+### Non-goals (MVP)
+
+- Step-to-timestamp video jumping.
+- In-app recipe editing by users.
+- Shopping list / pantry features.
+- Paid subscriptions / monetization flows (only architecture hooks).
+- Full nutrition computation via ingredient databases (only best-effort extraction from available text).
 
 ### In scope (MVP)
 
@@ -108,20 +127,6 @@ YouTube is the largest repository of cooking content, but it is not a recipe too
 *   Prepare auth for later gated features
     
 *   Implement: Sign in with Apple + Google (email later, not blocking MVP)
-    
-
-4) Out of scope (explicitly not in MVP)
----------------------------------------
-
-*   Step-to-timestamp video jumping
-    
-*   In-app editing of recipes by users
-    
-*   Shopping list / pantry features
-    
-*   Paid subscriptions / monetization flows (only architecture hooks)
-    
-*   Full nutrition computation via ingredient databases (only best-effort extraction from available text)
     
 
 5) Target users and primary jobs-to-be-done
@@ -248,6 +253,18 @@ Inputs to extraction:
     *   show “estimated” labels if needed
         
 
+Requirements (numbered)
+-----------------------
+
+- REQ-1: The detail screen must render a YouTube-compliant player container with a skeleton recipe card immediately on load.
+- REQ-2: Recipe results must be cached by `video_id` and returned in under 1s when available.
+- REQ-3: Search results must be cached for 24 hours and retrieved via a guarded YouTube query.
+- REQ-4: Extraction must produce strict, versioned JSON and classify non-recipe content.
+- REQ-5: Recipe output must be translated into the app language (English initially).
+- REQ-6: If extraction fails or content is not a recipe, the UI must show “No recipe available for this video.”
+- REQ-7: The app must never overlay UI elements on top of any part of the YouTube player.
+- REQ-8: Guest mode must allow browsing and viewing without login.
+
 8) Non-functional requirements
 ------------------------------
 
@@ -283,6 +300,15 @@ Inputs to extraction:
     
 *   Clear labeling when content is inferred/estimated
     
+
+Edge cases
+----------
+
+- No transcript/captions available: extraction uses description only and may return not_recipe.
+- YouTube API quota exceeded or throttled: search returns cached data or a clear error state.
+- Extraction returns partial data: render available sections and label estimates clearly.
+- Language mismatch or poor translation: show original-language hints where available.
+- Duplicate videos across categories/search: de-duplicate by `video_id`.
 
 9) Tech stack (mandated for agents)
 -----------------------------------
@@ -544,6 +570,13 @@ Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQL
 *   Basic auth scaffolding (Apple/Google) but not required for viewing
     
 
+Rollout / release
+-----------------
+
+- MVP release behind internal TestFlight distribution.
+- Staged rollout: 10% → 50% → 100% once crash-free rate and latency targets are met.
+- Allow immediate rollback by disabling extraction and falling back to video-only view.
+
 16) Acceptance criteria (MVP must pass)
 ---------------------------------------
 
@@ -563,6 +596,15 @@ Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQL
     
 8.  Search does not exhaust quota rapidly due to caching + explicit search action.
     
+
+Metrics
+-------
+
+- Recipe extraction success rate (>= 60% of viewed videos return is_recipe=true).
+- Median time to recipe render when cached (< 1s).
+- Median time to first skeleton render (< 100ms UI time).
+- Search cache hit rate (>= 50% over 7 days).
+- Crash-free session rate (>= 99.5%).
 
 17) Open questions (explicitly parked)
 --------------------------------------

@@ -8,3 +8,6 @@
 
 # Local env secrets
 .env.local
+
+# macOS
+.DS_Store
