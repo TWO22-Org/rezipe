@@ -11,3 +11,14 @@
 
 # macOS
 .DS_Store
+
+# Xcode
+*.xcuserstate
+xcuserdata/
+DerivedData/
+
+# Build outputs
+build/
+*.ipa
+*.dSYM.zip
+*.dSYM
