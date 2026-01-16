@@ -1,10 +1,10 @@
 import SwiftUI
 
 @main
-struct RezipeApp: App {
+struct ChefStreamApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainTabView()
         }
     }
 }
