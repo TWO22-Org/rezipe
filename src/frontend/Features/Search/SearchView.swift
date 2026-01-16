@@ -1,28 +1,58 @@
 import SwiftUI
 
-/// Search screen placeholder - will provide recipe video search
+/// Search screen - provides recipe video search with navigation to detail
 struct SearchView: View {
+    @Binding var navigationPath: NavigationPath
+    @State private var searchText = ""
+
+    // Sample search results for demonstration
+    private let sampleResults = [
+        ("chicken-curry", "Easy Chicken Curry"),
+        ("veggie-stir-fry", "Vegetable Stir Fry"),
+        ("chocolate-cake", "Chocolate Cake Recipe")
+    ]
+
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 16) {
-                Image(systemName: "magnifyingglass.circle.fill")
-                    .font(.system(size: 60))
-                    .foregroundStyle(.blue)
+        NavigationStack(path: $navigationPath) {
+            List {
+                if searchText.isEmpty {
+                    Section {
+                        Text("Enter a search term to find recipes")
+                            .foregroundStyle(.secondary)
+                    }
+                }
 
-                Text("Search")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
+                Section("Recent Searches") {
+                    ForEach(sampleResults, id: \.0) { video in
+                        NavigationLink(value: video.0) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "clock.arrow.circlepath")
+                                    .font(.title3)
+                                    .foregroundStyle(.blue)
 
-                Text("Search for recipe videos here")
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
+                                VStack(alignment: .leading) {
+                                    Text(video.1)
+                                        .font(.headline)
+                                    Text("Tap to view recipe")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    }
+                }
             }
-            .padding()
             .navigationTitle("Search")
+            .searchable(text: $searchText, prompt: "Search recipes...")
+            .navigationDestination(for: String.self) { videoId in
+                VideoDetailView(videoId: videoId)
+            }
         }
     }
 }
 
 #Preview {
-    SearchView()
+    @Previewable @State var path = NavigationPath()
+    SearchView(navigationPath: $path)
 }

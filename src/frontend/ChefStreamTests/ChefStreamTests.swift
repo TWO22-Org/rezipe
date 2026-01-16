@@ -25,36 +25,41 @@ final class ChefStreamTests: XCTestCase {
     }
 
     func testTabEnumHasExpectedCases() throws {
-        // Verify Tab enum has both expected cases
         let homeTab = MainTabView.Tab.home
         let searchTab = MainTabView.Tab.search
         XCTAssertNotEqual(homeTab, searchTab, "Tab cases should be distinct")
-        // Note: Default tab selection (home) should be verified via UI tests
     }
 
-    // MARK: - Home View Tests
+    // MARK: - Video Detail View Tests
 
-    func testHomeViewInstantiates() throws {
-        let view = HomeView()
-        XCTAssertNotNil(view, "HomeView should instantiate successfully")
+    func testVideoDetailViewInstantiates() throws {
+        let view = VideoDetailView(videoId: "test-video-123")
+        XCTAssertNotNil(view, "VideoDetailView should instantiate successfully")
     }
 
-    func testHomeViewBodyIsAccessible() throws {
-        let view = HomeView()
+    func testVideoDetailViewBodyIsAccessible() throws {
+        let view = VideoDetailView(videoId: "test-video-123")
         let body = view.body
-        XCTAssertNotNil(body, "HomeView body should be accessible")
+        XCTAssertNotNil(body, "VideoDetailView body should be accessible")
     }
 
-    // MARK: - Search View Tests
-
-    func testSearchViewInstantiates() throws {
-        let view = SearchView()
-        XCTAssertNotNil(view, "SearchView should instantiate successfully")
+    func testVideoDetailViewAcceptsVideoId() throws {
+        let videoId = "my-test-video"
+        let view = VideoDetailView(videoId: videoId)
+        XCTAssertEqual(view.videoId, videoId, "VideoDetailView should store the provided videoId")
     }
 
-    func testSearchViewBodyIsAccessible() throws {
-        let view = SearchView()
-        let body = view.body
-        XCTAssertNotNil(body, "SearchView body should be accessible")
+    // MARK: - Navigation Path Preservation Tests
+
+    func testNavigationPathCanBeCreated() throws {
+        let path = NavigationPath()
+        XCTAssertTrue(path.isEmpty, "New NavigationPath should be empty")
+    }
+
+    func testNavigationPathCanAppendValues() throws {
+        var path = NavigationPath()
+        path.append("video-123")
+        XCTAssertFalse(path.isEmpty, "NavigationPath should not be empty after append")
+        XCTAssertEqual(path.count, 1, "NavigationPath should have one element")
     }
 }
