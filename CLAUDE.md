@@ -80,6 +80,97 @@ Every project CLAUDE.md must include:
 - Follow `.claude/commands/re-init.md` when updating this file.
 - Record learnings in `.claude/learnings/` and update skills in `.claude/skills/`.
 
+ ## Pre-Implementation Checklist (MANDATORY)
+  Before implementing ANY task:
+  1. Check beads first** - Every implementation task must start with `bd status` + `bd ready`. Run `bd ready` to see available tasks
+  2. Find task ID for your work
+  3. Update status: `bd update <task-id> --status in_progress`
+  4. Create a todo list with task ID: `TodoWrite` with content starting with "[{task-id}]"
+  5. Only then begin implementation
+
+Example:
+  - Task: Task 004 (rezipe-004)
+  - Command: `bd update rezipe-004 --status in_progress`
+  - Todo: `[rezipe-004] Implement placeholder views + theming`
+
+## Epic Completion Checklist (MANDATORY)
+
+When ALL tasks in an epic are implemented, complete the epic in this order:
+
+### Step 1: Update Task Files
+For each task in `.claude/epics/<epic-name>/`:
+1. Get current timestamp: `date -u +"%Y-%m-%dT%H:%M:%SZ"`
+2. Update frontmatter:
+   - `status: completed`
+   - `updated: <timestamp>`
+   - `github: <issue-number>` (if synced)
+3. Check ALL acceptance criteria boxes `[x]`
+
+### Step 2: Update Epic File
+In `.claude/epics/<epic-name>/epic.md`:
+1. Update frontmatter:
+   - `status: completed`
+   - `updated: <timestamp>`
+   - `progress: 100%`
+   - `github: <issue-number>` (if synced)
+2. Check all task boxes `[x]` in "Task Breakdown Preview"
+3. Check all task boxes `[x]` in "Tasks Created"
+
+### Step 3: Update Beads
+For each task:
+```bash
+bd update <task-id> --status closed
+```
+Verify all tasks closed:
+```bash
+bd list --all | grep <epic-task-ids>
+```
+
+### Step 4: Close GitHub Issues
+For each task issue:
+```bash
+gh issue close <issue-number> --comment "✅ Completed in commit <hash>. <summary>"
+```
+Close epic issue:
+```bash
+gh issue close <epic-number> --comment "✅ Epic completed. All tasks (#X, #Y, #Z) closed. <summary>"
+```
+
+### Step 5: Commit Everything Together
+```bash
+# Stage epic files and beads database
+git add .claude/epics/<epic-name>/ .beads/issues.jsonl
+
+# Commit with epic summary
+git commit -m "docs: complete epic <name> - all tasks closed
+
+Updated epic and task files:
+- All tasks: status=completed, acceptance criteria checked
+- Epic: status=completed, progress=100%
+- Beads: all tasks closed
+- GitHub: epic #X and tasks #A,#B,#C closed
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
+```
+
+### Step 6: Final Verification
+Run these checks before considering epic complete:
+```bash
+# All task statuses should be "completed"
+grep "status:" .claude/epics/<epic-name>/*.md
+
+# All acceptance criteria should be [x]
+grep "\[ \]" .claude/epics/<epic-name>/*.md  # Should return nothing
+
+# All beads tasks should show ✓
+bd list --all | grep <epic-tasks>
+
+# All GitHub issues should be CLOSED
+gh issue list --state closed | grep <epic-tasks>
+```
+
+**IMPORTANT**: Do NOT consider an epic complete until all 6 steps are done and committed.
+
 ## CCPM + Beads Flow (Canonical)
 1) Create PRD in `.claude/prds/` using `/pm:prd-new <feature-name>`.
 2) Convert PRD to epic/tasks using `/pm:prd-parse <feature-name>` (or `/pm:epic-oneshot`).
