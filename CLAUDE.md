@@ -171,6 +171,114 @@ gh issue list --state closed | grep <epic-tasks>
 
 **IMPORTANT**: Do NOT consider an epic complete until all 6 steps are done and committed.
 
+## PR Creation and Merge Checklist (MANDATORY)
+
+After epic completion, create PR and merge to main:
+
+### Step 1: Push Branch to GitHub
+```bash
+# Ensure all commits are pushed
+git push origin <branch-name>
+```
+
+### Step 2: Create Pull Request
+```bash
+# Create PR with detailed description
+gh pr create --title "Epic: <name> - <summary>" \
+  --body-file /tmp/pr-description.md \
+  --base main \
+  --head <branch-name>
+```
+
+**PR Description Template:**
+```markdown
+## Summary
+Complete Epic: <name> (#<epic-issue>) - <one-line summary>
+
+## Tasks Completed
+- ✅ #X: Task 001 description
+- ✅ #Y: Task 002 description
+...
+
+## Deliverables
+- Feature/component descriptions
+- Technical changes summary
+
+## Test Plan
+- [x] Build succeeds
+- [x] Tests pass
+- [x] Manual verification items
+
+🤖 Generated with Claude Code
+```
+
+### Step 3: Merge Pull Request
+```bash
+# Merge with squash (keeps main history clean)
+gh pr merge <pr-number> --squash --delete-branch
+```
+
+**If --delete-branch fails**, merge may succeed but branch cleanup may not. Continue to Step 4.
+
+### Step 4: Post-Merge Branch Cleanup (ALWAYS RUN)
+
+**Even if `--delete-branch` was used, ALWAYS verify cleanup:**
+
+```bash
+# 1. Switch to main
+git checkout main
+
+# 2. Pull latest
+git pull origin main
+
+# 3. Verify merge commit
+git log --oneline -3
+
+# 4. Delete remote branch (if still exists)
+git push origin --delete <branch-name> 2>/dev/null || echo "Remote branch already deleted"
+
+# 5. Delete local branch (if still exists)
+git branch -d <branch-name> 2>/dev/null || echo "Local branch already deleted"
+
+# 6. Prune stale remote references
+git fetch --prune
+
+# 7. Verify clean state
+git branch -a  # Should NOT show the feature branch
+```
+
+### Step 5: Final Verification
+```bash
+# Verify build on main
+<build-command>  # e.g., xcodebuild, npm run build, etc.
+
+# Verify branch is gone
+git branch -a | grep <branch-name>  # Should return nothing
+```
+
+### Common Issues and Fixes
+
+**Issue**: `gh pr merge --delete-branch` doesn't delete the remote branch
+- **Cause**: GitHub API timing, branch protection, or multiple PRs
+- **Fix**: Manually run `git push origin --delete <branch-name>`
+
+**Issue**: Local branch still exists after merge
+- **Cause**: Git doesn't auto-delete local branches
+- **Fix**: Run `git branch -d <branch-name>`
+
+**Issue**: `git fetch` still shows deleted branch
+- **Cause**: Stale remote-tracking references
+- **Fix**: Run `git fetch --prune`
+
+### Why This Matters
+
+- **Clean repository**: No stale branches cluttering `git branch -a`
+- **Clear history**: Easy to see what branches are active
+- **No confusion**: No accidental commits to merged branches
+- **CI/CD hygiene**: Automated builds don't reference old branches
+
+**IMPORTANT**: Do NOT skip Step 4 post-merge cleanup, even if you used `--delete-branch`.
+
 ## CCPM + Beads Flow (Canonical)
 1) Create PRD in `.claude/prds/` using `/pm:prd-new <feature-name>`.
 2) Convert PRD to epic/tasks using `/pm:prd-parse <feature-name>` (or `/pm:epic-oneshot`).
