@@ -5,7 +5,7 @@ created: 2026-01-15T13:53:21Z
 updated: 2026-01-16T17:23:30Z
 progress: 100%
 prd: .claude/prds/app-shell.md
-github: [Will be updated when synced to GitHub]
+github: 2
 ---
 
 # Epic: app-shell
