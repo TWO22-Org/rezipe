@@ -5,11 +5,11 @@ struct SearchView: View {
     @Binding var navigationPath: NavigationPath
     @State private var searchText = ""
 
-    // Sample search results for demonstration
+    // Sample search results for demonstration (using VideoItem for consistency)
     private let sampleResults = [
-        ("chicken-curry", "Easy Chicken Curry"),
-        ("veggie-stir-fry", "Vegetable Stir Fry"),
-        ("chocolate-cake", "Chocolate Cake Recipe")
+        VideoItem(id: "chicken-curry", title: "Easy Chicken Curry"),
+        VideoItem(id: "veggie-stir-fry", title: "Vegetable Stir Fry"),
+        VideoItem(id: "chocolate-cake", title: "Chocolate Cake Recipe")
     ]
 
     var body: some View {
@@ -23,18 +23,18 @@ struct SearchView: View {
                 }
 
                 Section("Recent Searches") {
-                    ForEach(sampleResults, id: \.0) { video in
-                        NavigationLink(value: video.0) {
+                    ForEach(sampleResults) { video in
+                        NavigationLink(value: video.id) {
                             HStack(spacing: 12) {
                                 Image(systemName: "clock.arrow.circlepath")
                                     .font(.title3)
-                                    .foregroundStyle(.blue)
+                                    .foregroundStyle(Theme.Colors.secondary)
 
                                 VStack(alignment: .leading) {
-                                    Text(video.1)
-                                        .font(.headline)
+                                    Text(video.title)
+                                        .font(Theme.Typography.headline)
                                     Text("Tap to view recipe")
-                                        .font(.caption)
+                                        .font(Theme.Typography.caption)
                                         .foregroundStyle(.secondary)
                                 }
                             }

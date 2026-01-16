@@ -4,41 +4,43 @@ import SwiftUI
 struct HomeView: View {
     @Binding var navigationPath: NavigationPath
 
-    // Sample video IDs for demonstration
+    // Sample video items for demonstration
     private let sampleVideos = [
-        ("pasta-101", "Italian Pasta Basics"),
-        ("sushi-guide", "Sushi Making Guide"),
-        ("dessert-tips", "Quick Dessert Tips")
+        VideoItem(id: "pasta-101", title: "Italian Pasta Basics"),
+        VideoItem(id: "sushi-guide", title: "Sushi Making Guide"),
+        VideoItem(id: "dessert-tips", title: "Quick Dessert Tips"),
+        VideoItem(id: "thai-curry", title: "Thai Green Curry"),
+        VideoItem(id: "bread-baking", title: "Artisan Bread Baking"),
+        VideoItem(id: "salad-ideas", title: "Fresh Salad Ideas")
     ]
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            List {
-                Section("Featured Recipes") {
-                    ForEach(sampleVideos, id: \.0) { video in
-                        NavigationLink(value: video.0) {
-                            HStack(spacing: 12) {
-                                Image(systemName: "play.rectangle.fill")
-                                    .font(.title2)
-                                    .foregroundStyle(.orange)
+            ScrollView {
+                VStack(alignment: .leading, spacing: Theme.Spacing.large) {
+                    // Featured grid section
+                    VStack(alignment: .leading, spacing: Theme.Spacing.small) {
+                        Text("Featured Recipes")
+                            .font(Theme.Typography.headline)
+                            .padding(.horizontal)
 
-                                VStack(alignment: .leading) {
-                                    Text(video.1)
-                                        .font(.headline)
-                                    Text("Tap to view recipe")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                            .padding(.vertical, 4)
-                        }
+                        VideoGridView(videos: sampleVideos)
+                            .padding(.horizontal)
+                    }
+
+                    // Coming soon section
+                    VStack(alignment: .leading, spacing: Theme.Spacing.small) {
+                        Text("More Coming Soon")
+                            .font(Theme.Typography.headline)
+                            .padding(.horizontal)
+
+                        Text("More categories and recipes will be added in future updates.")
+                            .font(Theme.Typography.caption)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal)
                     }
                 }
-
-                Section {
-                    Text("More categories coming soon...")
-                        .foregroundStyle(.secondary)
-                }
+                .padding(.vertical)
             }
             .navigationTitle("ChefStream")
             .navigationDestination(for: String.self) { videoId in

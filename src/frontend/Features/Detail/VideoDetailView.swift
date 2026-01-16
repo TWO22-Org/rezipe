@@ -6,43 +6,45 @@ struct VideoDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
-                // Placeholder for YouTube player
+            VStack(spacing: Theme.Spacing.large) {
+                // Placeholder for YouTube player (black is semantically correct for video)
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.black)
                     .aspectRatio(16/9, contentMode: .fit)
                     .overlay {
-                        VStack(spacing: 8) {
+                        VStack(spacing: Theme.Spacing.small) {
                             Image(systemName: "play.circle.fill")
                                 .font(.system(size: 50))
                                 .foregroundStyle(.white)
                             Text("Video Player")
                                 .foregroundStyle(.white)
-                                .font(.caption)
+                                .font(Theme.Typography.caption)
                         }
                     }
 
                 // Placeholder for recipe card
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Recipe Title")
-                        .font(.title2)
+                        .font(Theme.Typography.title)
                         .fontWeight(.bold)
 
                     Text("Video ID: \(videoId)")
-                        .font(.caption)
+                        .font(Theme.Typography.caption)
                         .foregroundStyle(.secondary)
 
                     Divider()
 
                     Text("Recipe content will appear here once extracted from the video.")
+                        .font(Theme.Typography.body)
                         .foregroundStyle(.secondary)
                 }
                 .padding()
-                .background(.quaternary)
+                .background(Theme.Colors.background)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .padding()
         }
+        .background(Theme.Colors.background.opacity(0.5))
         .navigationTitle("Recipe")
         .navigationBarTitleDisplayMode(.inline)
     }
