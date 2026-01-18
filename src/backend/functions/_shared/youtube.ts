@@ -26,6 +26,7 @@ export const ErrorCodes = {
     INVALID_API_KEY: "YOUTUBE_INVALID_API_KEY",
     INVALID_REQUEST: "YOUTUBE_INVALID_REQUEST",
     NETWORK_ERROR: "YOUTUBE_NETWORK_ERROR",
+    TIMEOUT_ERROR: "YOUTUBE_TIMEOUT_ERROR",
     VALIDATION_ERROR: "YOUTUBE_VALIDATION_ERROR",
     UNKNOWN_ERROR: "YOUTUBE_UNKNOWN_ERROR",
 } as const;
@@ -39,6 +40,7 @@ export interface YouTubeSearchParams {
     locale?: string;
     pageToken?: string;
     maxResults?: number;
+    signal?: AbortSignal;
 }
 
 export interface YouTubeVideo {
@@ -297,8 +299,18 @@ export async function searchYouTube(
     try {
         response = await fetch(url, {
             headers: { Accept: "application/json" },
+            signal: params.signal,
         });
     } catch (error) {
+        // Handle abort/timeout errors
+        if (error instanceof Error && error.name === "AbortError") {
+            throw new YouTubeAPIError(
+                "Request timed out",
+                ErrorCodes.TIMEOUT_ERROR,
+                true,
+                504
+            );
+        }
         throw new YouTubeAPIError(
             `Network error: ${error instanceof Error ? error.message : "Unknown"}`,
             ErrorCodes.NETWORK_ERROR,
