@@ -1,8 +1,8 @@
 # Rezipe Agent Instructions
 
-**Version**: 1.1  
+**Version**: 1.2  
 **Project**: rezipe  
-**Last Updated**: 2026-01-14
+**Last Updated**: 2026-01-18
 
 ## Purpose
 
@@ -111,6 +111,7 @@ PR rules:
 - Body must include: PRD path and beads IDs
 - Keep PRs small and scoped to one PRD/epic when possible
 - Ensure all tests pass before requesting review
+- **Approval gate:** After committing, always ask whether to open a PR before pushing/merging to `main`. Do not push/merge to `main` without explicit user confirmation.
 
 ### C) Test Guidance (iOS + Supabase)
 - **iOS**: Use Xcode or `xcodebuild` with the correct scheme/workspace.
