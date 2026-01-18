@@ -1,9 +1,9 @@
 ---
 name: search-backend
-status: backlog
+status: completed
 created: 2026-01-15T21:17:57Z
-updated: 2026-01-17T08:23:26Z
-progress: 0%
+updated: 2026-01-18T14:27:54Z
+progress: 100%
 prd: .claude/prds/search-backend.md
 github: https://github.com/TWO22-Org/rezipe/issues/13
 ---
@@ -58,10 +58,10 @@ Implement GET /search Supabase Edge Function with recipe-biased YouTube query au
 - Phase 4: Edge Function deployment + testing
 
 ## Task Breakdown Preview
-- [ ] search_cache table schema + migration
-- [ ] YouTube API integration with recipe bias (youtube-api-v2)
-- [ ] Caching layer + cache key normalization
-- [ ] GET /search Edge Function deployment
+- [x] search_cache table schema + migration
+- [x] YouTube API integration with recipe bias (youtube-api-v2)
+- [x] Caching layer + cache key normalization
+- [x] GET /search Edge Function deployment
 
 ## Dependencies
 - Supabase project with Edge Functions enabled
@@ -82,10 +82,10 @@ Implement GET /search Supabase Edge Function with recipe-biased YouTube query au
 - Critical path: YouTube API integration
 
 ## Tasks Created
-- [ ] 14.md - search_cache table schema + migration (parallel: true)
-- [ ] 15.md - YouTube API integration with recipe bias (parallel: true)
-- [ ] 16.md - Caching layer + cache key normalization (parallel: false)
-- [ ] 17.md - GET /search Edge Function deployment (parallel: false)
+- [x] 14.md - search_cache table schema + migration (parallel: true)
+- [x] 15.md - YouTube API integration with recipe bias (parallel: true)
+- [x] 16.md - Caching layer + cache key normalization (parallel: false)
+- [x] 17.md - GET /search Edge Function deployment (parallel: false)
 
 Total tasks: 4
 Parallel tasks: 2
